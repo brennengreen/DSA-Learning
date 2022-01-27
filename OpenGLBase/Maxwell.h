@@ -27,6 +27,7 @@ public:
 private:
 	Shader _qs;
 	unsigned int _vao, _vbo;
+	unsigned int tex;
 
 	void _init_pipelines();
 	void _init_imgui();

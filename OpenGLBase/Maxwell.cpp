@@ -49,64 +49,53 @@ void Maxwell::ProcessMousePosition()
 	_lastOffset = Input::GetMouseOffset();
 }
 
+struct vertex {
+	
+};
 void Maxwell::_init_pipelines()
 {
+	glCreateTextures(GL_TEXTURE_2D, 1, &tex);
+	glTextureParameteri(tex, GL_TEXTURE_WRAP_S, GL_REPEAT );
+	glTextureParameteri(tex, GL_TEXTURE_WRAP_T, GL_REPEAT );
+	glTextureParameteri(tex, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTextureParameteri(tex, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	int width, height, nrChannels;
+	unsigned char * data = stbi_load("../Game/Textures/tex.jpg", &width, &height, &nrChannels, 0);
+	if (data) {
+		std::cout << nrChannels << " " << width << " " << height << std::endl;
+		glTextureStorage2D(tex, 1, GL_RGBA16, width, height);
+		glTextureSubImage2D(tex, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	} else {
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data);
+
 	// 36 Verices, 6 Per face, 1 Color
 	float vertices[] = {
-		-0.5, 0.5, 0.0,
-		0.5, 0.5, 0.0,
-		0.5, -0.5, 0.0,
-		0.5, -0.5, 0.0,
-		-0.5, -0.5, 0.0,
-		-0.5, 0.5, 0.0
-
-		/*0.0, 0.0, 0.0,
-		0.0, 0.0, 0.0,
-		0.0, 0.0, 0.0,
-		0.0, 0.0, 0.0,
-		0.0, 0.0, 0.0,
-		0.0, 0.0, 0.0,
-
-		0.0, 0.0, 0.0,
-		0.0, 0.0, 0.0,
-		0.0, 0.0, 0.0,
-		0.0, 0.0, 0.0,
-		0.0, 0.0, 0.0,
-		0.0, 0.0, 0.0,
-
-		0.0, 0.0, 0.0,
-		0.0, 0.0, 0.0,
-		0.0, 0.0, 0.0,
-		0.0, 0.0, 0.0,
-		0.0, 0.0, 0.0,
-		0.0, 0.0, 0.0,
-
-		0.0, 0.0, 0.0,
-		0.0, 0.0, 0.0,
-		0.0, 0.0, 0.0,
-		0.0, 0.0, 0.0,
-		0.0, 0.0, 0.0,
-		0.0, 0.0, 0.0,
-
-		0.0, 0.0, 0.0,
-		0.0, 0.0, 0.0,
-		0.0, 0.0, 0.0,
-		0.0, 0.0, 0.0,
-		0.0, 0.0, 0.0,
-		0.0, 0.0, 0.0*/
+		-0.5, 0.5, 0.0, 0.0, 0.0,
+		0.5, 0.5, 0.0, 1.0, 0.0,
+		0.5, -0.5, 0.0, 1.0, 1.0,
+		0.5, -0.5, 0.0, 1.0, 1.0,
+		-0.5, -0.5, 0.0, 0.0, 1.0,
+		-0.5, 0.5, 0.0, 0.0, 0.0
 	};
 	unsigned int vertex_count = 6;
 
 	glCreateBuffers(1, &_vbo);
-	glNamedBufferStorage(_vbo, sizeof(float)*3*vertex_count, vertices, 0);
+	glNamedBufferStorage(_vbo, sizeof(float)*5*vertex_count, vertices, 0);
 
 	glCreateVertexArrays(1, &_vao);
 
-	glVertexArrayVertexBuffer(_vao, 0, _vbo, 0, 3*sizeof(float));
+	glVertexArrayVertexBuffer(_vao, 0, _vbo, 0, 5*sizeof(float));
 
 	glEnableVertexArrayAttrib(_vao, 0);
-	glVertexArrayAttribFormat(_vao, 0, 3, GL_FLOAT, GL_FALSE, 0);
+	glEnableVertexArrayAttrib(_vao, 1);
+
+	glVertexArrayAttribFormat(_vao, 0, 3, GL_FLOAT, GL_FALSE, 0*sizeof(float));
+	glVertexArrayAttribFormat(_vao, 1, 2, GL_FLOAT, GL_FALSE, 3*sizeof(float));
+
 	glVertexArrayAttribBinding(_vao, 0, 0);
+	glVertexArrayAttribBinding(_vao, 1, 0);
 
 	_qs = Shader("./Shaders/qs.vert", "./Shaders/qs.frag");
 }
@@ -133,6 +122,7 @@ void Maxwell::_render_pass()
 	_qs.setVec3("view_pos", glm::vec3(0.0, 0.0, -1.0));
 
 	glBindVertexArray(_vao);
+	glBindTextureUnit(0, tex);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glBindVertexArray(0);
 }
