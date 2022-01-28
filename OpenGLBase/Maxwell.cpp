@@ -63,8 +63,8 @@ void Maxwell::_init_pipelines()
 	unsigned char * data = stbi_load("../Game/Textures/tex.jpg", &width, &height, &nrChannels, 0);
 	if (data) {
 		std::cout << nrChannels << " " << width << " " << height << std::endl;
-		glTextureStorage2D(tex, 1, GL_RGBA16, width, height);
-		glTextureSubImage2D(tex, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glTextureStorage2D(tex, 1, GL_RGB8, width, height);
+		glTextureSubImage2D(tex, 0, 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
 	} else {
 		std::cout << "Failed to load texture" << std::endl;
 	}
@@ -72,12 +72,12 @@ void Maxwell::_init_pipelines()
 
 	// 36 Verices, 6 Per face, 1 Color
 	float vertices[] = {
-		-0.5, 0.5, 0.0, 0.0, 0.0,
-		0.5, 0.5, 0.0, 1.0, 0.0,
-		0.5, -0.5, 0.0, 1.0, 1.0,
-		0.5, -0.5, 0.0, 1.0, 1.0,
-		-0.5, -0.5, 0.0, 0.0, 1.0,
-		-0.5, 0.5, 0.0, 0.0, 0.0
+		-1.0, 1.0, 0.0, 0.0, 0.0,
+		1.0, 1.0, 0.0, 1.0, 0.0,
+		1.0, -1.0, 0.0, 1.0, 1.0,
+		1.0, -1.0, 0.0, 1.0, 1.0,
+		-1.0, -1.0, 0.0, 0.0, 1.0,
+		-1.0, 1.0, 0.0, 0.0, 0.0
 	};
 	unsigned int vertex_count = 6;
 
