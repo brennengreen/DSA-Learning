@@ -13,6 +13,20 @@
 struct ImguiConfigurations {
 };
 
+struct Particle {
+	glm::vec3 pos{0.0};
+	glm::vec3 vel{0.0};
+	glm::vec3 acc{0.00001, -0.0001, 0.0};
+	float lifetime{255.0f};
+	float remaining = lifetime;
+
+	void update() {
+		vel += acc;
+		pos += vel;
+		remaining-=0.5f;
+	}
+};
+
 class Maxwell {
 public:
 	Maxwell();
@@ -25,6 +39,7 @@ public:
 	void ProcessScrollState();
 	void ProcessMousePosition();
 private:
+	Particle ps[1500];
 	Shader _qs;
 	unsigned int _vao, _vbo;
 	unsigned int tex;

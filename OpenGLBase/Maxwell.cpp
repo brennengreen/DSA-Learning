@@ -72,12 +72,12 @@ void Maxwell::_init_pipelines()
 
 	// 36 Verices, 6 Per face, 1 Color
 	float vertices[] = {
-		-1.0, 1.0, 0.0, 0.0, 0.0,
-		1.0, 1.0, 0.0, 1.0, 0.0,
-		1.0, -1.0, 0.0, 1.0, 1.0,
-		1.0, -1.0, 0.0, 1.0, 1.0,
-		-1.0, -1.0, 0.0, 0.0, 1.0,
-		-1.0, 1.0, 0.0, 0.0, 0.0
+		-0.1, 0.1, 0.0, 0.0, 0.0,
+		0.1, 0.1, 0.0, 1.0, 0.0,
+		0.1, -0.1, 0.0, 1.0, 1.0,
+		0.1, -0.1, 0.0, 1.0, 1.0,
+		-0.1, -0.1, 0.0, 0.0, 1.0,
+		-0.1, 0.1, 0.0, 0.0, 0.0
 	};
 	unsigned int vertex_count = 6;
 
@@ -115,16 +115,25 @@ void Maxwell::_render_pass()
 	glViewport(0, 0, Application::GetWindowExtent().x, Application::GetWindowExtent().y);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	glm::mat4 model = glm::mat4{1.0};
+	for (int i = 0; i < 100; i++) {
+		if (ps[i].lifetime <= 0) continue;
 	
-	_qs.use();
-	_qs.setMat4("model", model);
-	_qs.setVec3("view_pos", glm::vec3(0.0, 0.0, -1.0));
+		ps[i].update();
 
-	glBindVertexArray(_vao);
-	glBindTextureUnit(0, tex);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-	glBindVertexArray(0);
+		glm::mat4 model = glm::mat4{1.0};
+		model = glm::translate(model, ps[i].pos);
+
+		_qs.use();
+		_qs.setMat4("model", model);
+		_qs.setVec3("center", ps[i].pos);
+		_qs.setFloat("lifetime", ps[i].lifetime);
+		_qs.setFloat("remaining", ps[i].remaining);
+
+		glBindVertexArray(_vao);
+		glBindTextureUnit(0, tex);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glBindVertexArray(0);	
+	}
 }
 
 void Maxwell::_imgui_pass() const {

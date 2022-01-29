@@ -6,7 +6,11 @@ in vec2 TexCoords;
 
 layout(binding = 0) uniform sampler2D _tex;
 
+uniform float lifetime;
+uniform float remaining;
+uniform vec3 center;
 void main()
 {
-	FragColor = vec4(texture(_tex, TexCoords).rgb, 1.0);
+	if (distance(center.xy, FragPos.xy) > .05) discard;
+	FragColor = vec4(texture(_tex, TexCoords).rgb*(remaining/lifetime), 1.0);
 }

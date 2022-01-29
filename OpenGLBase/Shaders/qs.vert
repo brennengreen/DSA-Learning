@@ -7,8 +7,6 @@ out vec2 TexCoords;
 
 uniform mat4 model;
 
-uniform vec3 view_pos;
-
 void main() {
 	TexCoords = aUV;
 	FragPos = vec3(model * vec4(aPos, 1.0));
