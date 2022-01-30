@@ -11,6 +11,6 @@ uniform float remaining;
 uniform vec3 center;
 void main()
 {
-	if (distance(center.xy, FragPos.xy) > .05) discard;
+	if (distance(center.xy, FragPos.xy) > .005) discard;
 	FragColor = vec4(texture(_tex, TexCoords).rgb*(remaining/lifetime), 1.0);
 }

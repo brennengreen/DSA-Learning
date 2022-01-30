@@ -7,6 +7,8 @@
 #include <iostream>
 #include <filesystem>
 
+#include <random>
+
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
@@ -49,9 +51,6 @@ void Maxwell::ProcessMousePosition()
 	_lastOffset = Input::GetMouseOffset();
 }
 
-struct vertex {
-	
-};
 void Maxwell::_init_pipelines()
 {
 	glCreateTextures(GL_TEXTURE_2D, 1, &tex);
@@ -72,12 +71,12 @@ void Maxwell::_init_pipelines()
 
 	// 36 Verices, 6 Per face, 1 Color
 	float vertices[] = {
-		-0.1, 0.1, 0.0, 0.0, 0.0,
-		0.1, 0.1, 0.0, 1.0, 0.0,
-		0.1, -0.1, 0.0, 1.0, 1.0,
-		0.1, -0.1, 0.0, 1.0, 1.0,
-		-0.1, -0.1, 0.0, 0.0, 1.0,
-		-0.1, 0.1, 0.0, 0.0, 0.0
+		-0.01, 0.01, 0.0, 0.0, 0.0,
+		0.01, 0.01, 0.0, 1.0, 0.0,
+		0.01, -0.01, 0.0, 1.0, 1.0,
+		0.01, -0.01, 0.0, 1.0, 1.0,
+		-0.01, -0.01, 0.0, 0.0, 1.0,
+		-0.01, 0.01, 0.0, 0.0, 0.0
 	};
 	unsigned int vertex_count = 6;
 
@@ -98,6 +97,18 @@ void Maxwell::_init_pipelines()
 	glVertexArrayAttribBinding(_vao, 1, 0);
 
 	_qs = Shader("./Shaders/qs.vert", "./Shaders/qs.frag");
+	std::default_random_engine generator;
+	std::uniform_real_distribution<double> distribution(-3,3);
+	std::uniform_real_distribution<double> distribution_p(0,2);
+	std::uniform_real_distribution<double> distribution_n(-10,0.0001);
+
+	for (int i = 0; i < np; i++) {
+		ps[i] = Particle(
+			{0.0, 0.0, 0.0},
+			{distribution(generator)*0.0025, distribution_p(generator)*0.02, 0.0},
+			{distribution(generator)*0.0001, distribution_n(generator)*0.0001, 0.0}
+		);
+	}
 }
 
 void Maxwell::_init_imgui()
@@ -115,7 +126,7 @@ void Maxwell::_render_pass()
 	glViewport(0, 0, Application::GetWindowExtent().x, Application::GetWindowExtent().y);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	for (int i = 0; i < 100; i++) {
+	for (int i = 0; i < np; i++) {
 		if (ps[i].lifetime <= 0) continue;
 	
 		ps[i].update();
