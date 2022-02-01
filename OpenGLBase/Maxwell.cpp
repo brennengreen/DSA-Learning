@@ -7,8 +7,6 @@
 #include <iostream>
 #include <filesystem>
 
-#include <random>
-
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
@@ -97,18 +95,9 @@ void Maxwell::_init_pipelines()
 	glVertexArrayAttribBinding(_vao, 1, 0);
 
 	_qs = Shader("./Shaders/qs.vert", "./Shaders/qs.frag");
-	std::default_random_engine generator;
-	std::uniform_real_distribution<double> distribution(-3,3);
-	std::uniform_real_distribution<double> distribution_p(0,2);
-	std::uniform_real_distribution<double> distribution_n(-10,0.0001);
-
-	for (int i = 0; i < np; i++) {
-		ps[i] = Particle(
-			{0.0, 0.0, 0.0},
-			{distribution(generator)*0.0025, distribution_p(generator)*0.02, 0.0},
-			{distribution(generator)*0.0001, distribution_n(generator)*0.0001, 0.0}
-		);
-	}
+	distribution = std::uniform_real_distribution<double>(-1, 1);
+	distribution_p = std::uniform_real_distribution<double>(0, 2);
+	distribution_n = std::uniform_real_distribution<double>(-10, 0.0001);
 }
 
 void Maxwell::_init_imgui()
@@ -126,7 +115,16 @@ void Maxwell::_render_pass()
 	glViewport(0, 0, Application::GetWindowExtent().x, Application::GetWindowExtent().y);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	for (int i = 0; i < np; i++) {
+	for (int i = 0; i < 1; i++)
+		ps.push_back(Particle(
+				{0.0, -1.0, 0.0},
+				{distribution(generator)*0.0025,  std::uniform_real_distribution<double>(0.85, 1.15)(generator)*0.02, 0.0},
+				{distribution(generator)*0.0001, std::uniform_real_distribution<double>(0.85, 1.15)(generator)*0.0000001, 0.0}
+			)
+		);
+
+
+	for (int i = 0; i < ps.size(); i++) {
 		if (ps[i].lifetime <= 0) continue;
 	
 		ps[i].update();

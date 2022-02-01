@@ -7,7 +7,9 @@
 #include "Shader.h"
 #include "imgui.h"
 
+#include <random>
 #include <memory>
+#include <vector>
 
 
 struct ImguiConfigurations {
@@ -28,7 +30,7 @@ struct Particle {
 	glm::vec3 pos{0.0};
 	glm::vec3 vel{0.0};
 	glm::vec3 acc{0.0};
-	float lifetime{255.0f};
+	float lifetime{50.0f};
 	float remaining = lifetime;
 
 	void update() {
@@ -50,8 +52,12 @@ public:
 	void ProcessScrollState();
 	void ProcessMousePosition();
 private:
-	static const int np = 2500;
-	Particle ps[np];
+	std::default_random_engine generator;
+	std::uniform_real_distribution<double> distribution;
+	std::uniform_real_distribution<double> distribution_p;
+	std::uniform_real_distribution<double> distribution_n;
+
+	std::vector<Particle> ps;
 	Shader _qs;
 	unsigned int _vao, _vbo;
 	unsigned int tex;
