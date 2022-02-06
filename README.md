@@ -6,20 +6,10 @@
     <img src="Media/max.jpg" alt="Logo" width="150" height="175">
   </a>
 
-  <h3 align="center">Maxwell</h3>
+  <h3 align="center">Particle System built w/ DSA in OpenGL</h3>
 
   <p align="center">
-    A rendering "engine" which is good at one thing, being used elsewhere.
-
-    The entire purpose of this "engine" is to be used as a template to build my later projects.
-    Maxwell implements a simple windowing application can calls the Maxwell run function,
-    this function sets up basic imgui components and then calls a renderpass.
-
-    In the renderpass it is expected that some other engine will be called to render
-    specific components from a project. Such as a particle system, voxel engine, raymarcher, etc.
-
-    This gives me the advantaged of being able to use all my projects in a "cross-platform" manner
-    in which they should be able to interact with each other.
+    A delving into the world of Direct State Access through a hacky approach to a particle system.
     <br />
   </p>
 </div>

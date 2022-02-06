@@ -1,9 +1,5 @@
 #include "Maxwell.h"
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 #include <iostream>
 #include <filesystem>
 
@@ -69,12 +65,12 @@ void Maxwell::_init_pipelines()
 
 	// 36 Verices, 6 Per face, 1 Color
 	float vertices[] = {
-		-0.01, 0.01, 0.0, 0.0, 0.0,
-		0.01, 0.01, 0.0, 1.0, 0.0,
-		0.01, -0.01, 0.0, 1.0, 1.0,
-		0.01, -0.01, 0.0, 1.0, 1.0,
-		-0.01, -0.01, 0.0, 0.0, 1.0,
-		-0.01, 0.01, 0.0, 0.0, 0.0
+		-1, 1, 0.0, 0.0, 0.0,
+		1, 1, 0.0, 1.0, 0.0,
+		1, -1, 0.0, 1.0, 1.0,
+		1, -1, 0.0, 1.0, 1.0,
+		-1, -1, 0.0, 0.0, 1.0,
+		-1, 1, 0.0, 0.0, 0.0
 	};
 	unsigned int vertex_count = 6;
 
@@ -95,9 +91,7 @@ void Maxwell::_init_pipelines()
 	glVertexArrayAttribBinding(_vao, 1, 0);
 
 	_qs = Shader("./Shaders/qs.vert", "./Shaders/qs.frag");
-	distribution = std::uniform_real_distribution<double>(-1, 1);
-	distribution_p = std::uniform_real_distribution<double>(0, 2);
-	distribution_n = std::uniform_real_distribution<double>(-10, 0.0001);
+	em.Initialize();
 }
 
 void Maxwell::_init_imgui()
@@ -115,34 +109,8 @@ void Maxwell::_render_pass()
 	glViewport(0, 0, Application::GetWindowExtent().x, Application::GetWindowExtent().y);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	for (int i = 0; i < 1; i++)
-		ps.push_back(Particle(
-				{0.0, -1.0, 0.0},
-				{distribution(generator)*0.0025,  std::uniform_real_distribution<double>(0.85, 1.15)(generator)*0.02, 0.0},
-				{distribution(generator)*0.0001, std::uniform_real_distribution<double>(0.85, 1.15)(generator)*0.0000001, 0.0}
-			)
-		);
-
-
-	for (int i = 0; i < ps.size(); i++) {
-		if (ps[i].lifetime <= 0) continue;
-	
-		ps[i].update();
-
-		glm::mat4 model = glm::mat4{1.0};
-		model = glm::translate(model, ps[i].pos);
-
-		_qs.use();
-		_qs.setMat4("model", model);
-		_qs.setVec3("center", ps[i].pos);
-		_qs.setFloat("lifetime", ps[i].lifetime);
-		_qs.setFloat("remaining", ps[i].remaining);
-
-		glBindVertexArray(_vao);
-		glBindTextureUnit(0, tex);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		glBindVertexArray(0);	
-	}
+	em.Fire();
+	em.Render(_qs, _vao, tex);
 }
 
 void Maxwell::_imgui_pass() const {

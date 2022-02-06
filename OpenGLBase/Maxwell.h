@@ -4,6 +4,10 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include "Shader.h"
 #include "imgui.h"
 
@@ -40,6 +44,67 @@ struct Particle {
 	}
 };
 
+struct Emitter {
+	std::vector<Particle> ps;
+	std::vector<int> dead_particles;
+	std::default_random_engine generator;
+	std::uniform_real_distribution<double> distribution;
+	std::uniform_real_distribution<double> distribution_p;
+	std::uniform_real_distribution<double> distribution_n;
+	int spawn_particles = 50;
+
+	void Initialize() {
+		distribution = std::uniform_real_distribution<double>(-0.5, 0.5);
+		distribution_p = std::uniform_real_distribution<double>(0, 2);
+		distribution_n = std::uniform_real_distribution<double>(-10, 0.0001);
+
+		for (int i = 0; i < 100000; i++) {
+			ps.push_back(
+				Particle()
+			);
+			ps[i].remaining = 0;
+		}
+	}
+
+	void Fire() {
+		if (dead_particles.size() >= spawn_particles) 
+			for (int i = 0; i < spawn_particles; i++) {
+				ps[dead_particles.back()] = Particle(
+						{0.0, -1.0, 0.0},
+						{distribution(generator)*0.00025,  std::uniform_real_distribution<double>(0.85, 1.15)(generator)*0.005, 0.0},
+						{distribution(generator)*0.0001, std::uniform_real_distribution<double>(0.85, 1.15)(generator)*0.0000001, 0.0}
+					);
+				dead_particles.pop_back();
+			}
+	}
+
+	void Render(Shader shader, unsigned int vao, unsigned int tex) {
+		for (int i = 0; i < ps.size(); i++) {
+			if (ps[i].remaining <= 0) {
+				dead_particles.push_back(i);
+				continue;
+			}
+	
+			ps[i].update();
+
+			glm::mat4 model = glm::mat4{1.0};
+			model = glm::translate(model, ps[i].pos);
+			model = glm::scale(model, glm::vec3(0.005, 0.005, 0.005));
+
+			shader.use();
+			shader.setMat4("model", model);
+			shader.setVec3("center", ps[i].pos);
+			shader.setFloat("lifetime", ps[i].lifetime);
+			shader.setFloat("remaining", ps[i].remaining);
+
+			glBindVertexArray(vao);
+			glBindTextureUnit(0, tex);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+			glBindVertexArray(0);	
+		}
+	}
+};
+
 class Maxwell {
 public:
 	Maxwell();
@@ -52,12 +117,8 @@ public:
 	void ProcessScrollState();
 	void ProcessMousePosition();
 private:
-	std::default_random_engine generator;
-	std::uniform_real_distribution<double> distribution;
-	std::uniform_real_distribution<double> distribution_p;
-	std::uniform_real_distribution<double> distribution_n;
+	Emitter em {};
 
-	std::vector<Particle> ps;
 	Shader _qs;
 	unsigned int _vao, _vbo;
 	unsigned int tex;
