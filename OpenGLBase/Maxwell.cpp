@@ -65,30 +65,27 @@ void Maxwell::_init_pipelines()
 
 	// 36 Verices, 6 Per face, 1 Color
 	float vertices[] = {
-		-1, 1, 0.0, 0.0, 0.0,
-		1, 1, 0.0, 1.0, 0.0,
-		1, -1, 0.0, 1.0, 1.0,
-		1, -1, 0.0, 1.0, 1.0,
-		-1, -1, 0.0, 0.0, 1.0,
-		-1, 1, 0.0, 0.0, 0.0
+		-1, 1, 0.0, 0.0,
+		1, 1, 1.0, 0.0,
+		1, -1, 1.0, 1.0,
+		1, -1, 1.0, 1.0,
+		-1, -1, 0.0, 1.0,
+		-1, 1, 0.0, 0.0
 	};
 	unsigned int vertex_count = 6;
 
 	glCreateBuffers(1, &_vbo);
-	glNamedBufferStorage(_vbo, sizeof(float)*5*vertex_count, vertices, 0);
+	glNamedBufferStorage(_vbo, sizeof(float)*4*vertex_count, vertices, 0);
 
 	glCreateVertexArrays(1, &_vao);
 
-	glVertexArrayVertexBuffer(_vao, 0, _vbo, 0, 5*sizeof(float));
+	glVertexArrayVertexBuffer(_vao, 0, _vbo, 0, 4*sizeof(float));
 
 	glEnableVertexArrayAttrib(_vao, 0);
-	glEnableVertexArrayAttrib(_vao, 1);
 
-	glVertexArrayAttribFormat(_vao, 0, 3, GL_FLOAT, GL_FALSE, 0*sizeof(float));
-	glVertexArrayAttribFormat(_vao, 1, 2, GL_FLOAT, GL_FALSE, 3*sizeof(float));
+	glVertexArrayAttribFormat(_vao, 0, 4, GL_FLOAT, GL_FALSE, 0*sizeof(float));
 
 	glVertexArrayAttribBinding(_vao, 0, 0);
-	glVertexArrayAttribBinding(_vao, 1, 0);
 
 	_qs = Shader("./Shaders/qs.vert", "./Shaders/qs.frag");
 	em.Initialize();
@@ -110,7 +107,7 @@ void Maxwell::_render_pass()
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	em.Fire();
-	em.Render(_qs, _vao, tex);
+	em.Render(_qs, _vao, tex, _deltaTime);
 }
 
 void Maxwell::_imgui_pass() const {
